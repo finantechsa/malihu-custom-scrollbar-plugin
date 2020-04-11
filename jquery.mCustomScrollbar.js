@@ -553,6 +553,10 @@ and dependencies (minified).
 
 							methods.update.call(null, $this); /* call the update method */
 
+							$this.on('resized', function () {
+								methods.update.call(null, $this); /* call the update method */
+							});
+
 						}
 
 					});
@@ -1851,14 +1855,16 @@ and dependencies (minified).
 						var doc = top.document;
 						html = doc.body.innerHTML;
 					} catch (err) {
-						/* do nothing */ }
+						/* do nothing */
+					}
 					result = (html !== null);
 				} else {
 					try {
 						var doc = iframe.contentDocument || iframe.contentWindow.document;
 						html = doc.body.innerHTML;
 					} catch (err) {
-						/* do nothing */ }
+						/* do nothing */
+					}
 					result = (html !== null);
 				}
 				if (cacheKey !== false) {
