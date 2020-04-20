@@ -65,6 +65,9 @@ and dependencies (minified).
 		init();
 	}(function () {
 
+		/* Value to adjust the position of the scroll */
+		var ADJUST_VALUE = -1;
+
 		/* 
 		----------------------------------------
 		PLUGIN NAMESPACE, PREFIX, DEFAULT SELECTOR(S) 
@@ -351,7 +354,8 @@ and dependencies (minified).
 					onTotalScrollOffset: 0,
 					onTotalScrollBackOffset: 0,
 					alwaysTriggerOffsets: true
-				}
+				},
+				scrollbarsMargin: null
 				/*
 				add scrollbar(s) on all elements matching the current selector, now and in the future 
 				values: boolean, string 
@@ -619,7 +623,7 @@ and dependencies (minified).
 							_expandContentHorizontally.call(this); /* expand content horizontally */
 
 							if (o.axis !== "y" && !o.advanced.autoExpandHorizontalScroll) {
-								mCSB_container.css("width", _contentWidth(mCSB_container));
+								//mCSB_container.css("width", _contentWidth(mCSB_container));
 							}
 
 							d.overflowed = _overflowed.call(this); /* determine if scrolling is required */
@@ -651,7 +655,7 @@ and dependencies (minified).
 											overwrite: "none"
 										});
 									}
-								} else if (mCSB_dragger[0].height() > mCSB_dragger[0].parent().height()) {
+								} else if (mCSB_dragger[0].outerHeight(true) > mCSB_dragger[0].parent().height()) {
 									_resetContentPosition.call(this); /* reset content position */
 								} else {
 									/* y scrolling is required */
@@ -677,7 +681,7 @@ and dependencies (minified).
 											overwrite: "none"
 										});
 									}
-								} else if (mCSB_dragger[1].width() > mCSB_dragger[1].parent().width()) {
+								} else if (mCSB_dragger[1].outerWidth(true) > mCSB_dragger[1].parent().width()) {
 									_resetContentPosition.call(this); /* reset content position */
 								} else {
 									/* x scrolling is required */
@@ -701,7 +705,7 @@ and dependencies (minified).
 								}
 							}
 
-							_autoUpdate.call(this); /* initialize automatic updating (for dynamic content, fluid layouts etc.) */
+							//_autoUpdate.call(this); /* initialize automatic updating (for dynamic content, fluid layouts etc.) */
 
 						}
 
@@ -847,7 +851,7 @@ and dependencies (minified).
 
 							var d = $this.data(pluginPfx);
 
-							_autoUpdate.call(this, "remove"); /* remove automatic updating */
+							//_autoUpdate.call(this, "remove"); /* remove automatic updating */
 
 							_unbindEvents.call(this); /* unbind events */
 
@@ -895,7 +899,7 @@ and dependencies (minified).
 								removeLiveTimers(o.liveSelector || $(selector).selector);
 							} /* remove live timers */
 
-							_autoUpdate.call(this, "remove"); /* remove automatic updating */
+							//_autoUpdate.call(this, "remove"); /* remove automatic updating */
 
 							_unbindEvents.call(this); /* unbind events */
 
@@ -1001,7 +1005,7 @@ and dependencies (minified).
 				var mCustomScrollBox = $("#mCSB_" + d.idx),
 					mCSB_container = $("#mCSB_" + d.idx + "_container");
 				if (o.axis !== "y" && !o.advanced.autoExpandHorizontalScroll) {
-					mCSB_container.css("width", _contentWidth(mCSB_container));
+					mCSB_container.css("width", _contentWidth(mCSB_container.children()));
 				}
 				if (o.scrollbarPosition === "outside") {
 					if ($this.css("position") === "static") {
@@ -1017,8 +1021,8 @@ and dependencies (minified).
 				_scrollButtons.call(this); /* add scrollbar buttons */
 				/* minimum dragger length */
 				var mCSB_dragger = [$("#mCSB_" + d.idx + "_dragger_vertical"), $("#mCSB_" + d.idx + "_dragger_horizontal")];
-				mCSB_dragger[0].css("min-height", mCSB_dragger[0].height());
-				mCSB_dragger[1].css("min-width", mCSB_dragger[1].width());
+				mCSB_dragger[0].css("min-height", '5px');
+				mCSB_dragger[1].css("min-width", mCSB_dragger[1].outerWidth(true));
 			},
 			/* -------------------- */
 
@@ -1139,8 +1143,8 @@ and dependencies (minified).
 					mCSB_dragger = [$("#mCSB_" + d.idx + "_dragger_vertical"), $("#mCSB_" + d.idx + "_dragger_horizontal")],
 					scrollAmount = [mCSB_container.outerHeight(false) - mCustomScrollBox.height(), mCSB_container.outerWidth(false) - mCustomScrollBox.width()],
 					ratio = [
-						scrollAmount[0] / (mCSB_dragger[0].parent().height() - mCSB_dragger[0].height()),
-						scrollAmount[1] / (mCSB_dragger[1].parent().width() - mCSB_dragger[1].width())
+						scrollAmount[0] / (mCSB_dragger[0].parent().height() - mCSB_dragger[0].outerHeight(true)),
+						scrollAmount[1] / (mCSB_dragger[1].parent().width() - mCSB_dragger[1].outerWidth(true))
 					];
 				d.scrollRatio = {
 					y: ratio[0],
@@ -1566,11 +1570,11 @@ and dependencies (minified).
 						touchIntent[2] = Math.abs(_coordinates(e)[0] - touchIntent[0]);
 						touchIntent[3] = Math.abs(_coordinates(e)[1] - touchIntent[1]);
 						if (d.overflowed[0]) {
-							var limit = mCSB_dragger[0].parent().height() - mCSB_dragger[0].height(),
+							var limit = mCSB_dragger[0].parent().height() - mCSB_dragger[0].outerHeight(true),
 								prevent = ((dragY - y) > 0 && (y - dragY) > -(limit * d.scrollRatio.y) && (touchIntent[3] * 2 < touchIntent[2] || o.axis === "yx"));
 						}
 						if (d.overflowed[1]) {
-							var limitX = mCSB_dragger[1].parent().width() - mCSB_dragger[1].width(),
+							var limitX = mCSB_dragger[1].parent().width() - mCSB_dragger[1].outerWidth(true),
 								preventX = ((dragX - x) > 0 && (x - dragX) > -(limitX * d.scrollRatio.x) && (touchIntent[2] * 2 < touchIntent[3] || o.axis === "yx"));
 						}
 						if (prevent || preventX) {
@@ -1798,7 +1802,7 @@ and dependencies (minified).
 							amount = o.mouseWheel.scrollAmount !== "auto" ? px[1] : px[0] >= mCustomScrollBox.width() ? mCustomScrollBox.width() * 0.9 : px[0],
 							contentPos = Math.abs($("#mCSB_" + d.idx + "_container")[0].offsetLeft),
 							draggerPos = mCSB_dragger[1][0].offsetLeft,
-							limit = mCSB_dragger[1].parent().width() - mCSB_dragger[1].width(),
+							limit = mCSB_dragger[1].parent().width() - mCSB_dragger[1].outerWidth(true),
 							dlt = o.mouseWheel.axis === "y" ? (e.deltaY || delta) : e.deltaX;
 					} else {
 						var dir = "y",
@@ -1806,7 +1810,7 @@ and dependencies (minified).
 							amount = o.mouseWheel.scrollAmount !== "auto" ? px[1] : px[0] >= mCustomScrollBox.height() ? mCustomScrollBox.height() * 0.9 : px[0],
 							contentPos = Math.abs($("#mCSB_" + d.idx + "_container")[0].offsetTop),
 							draggerPos = mCSB_dragger[0][0].offsetTop,
-							limit = mCSB_dragger[0].parent().height() - mCSB_dragger[0].height(),
+							limit = mCSB_dragger[0].parent().height() - mCSB_dragger[0].outerHeight(true),
 							dlt = e.deltaY || delta;
 					}
 					if ((dir === "y" && !d.overflowed[0]) || (dir === "x" && !d.overflowed[1])) {
@@ -2578,7 +2582,7 @@ and dependencies (minified).
 							contentPos = mCSB_container[0].offsetLeft,
 							limit = [
 								mCustomScrollBox.width() - mCSB_container.outerWidth(false),
-								mCSB_dragger.parent().width() - mCSB_dragger.width()
+								mCSB_dragger.parent().width() - mCSB_dragger.outerWidth(true)
 							],
 							scrollTo = [to, to === 0 ? 0 : (to / d.scrollRatio.x)],
 							tso = totalScrollOffsets[1],
@@ -2592,7 +2596,7 @@ and dependencies (minified).
 							contentPos = mCSB_container[0].offsetTop,
 							limit = [
 								mCustomScrollBox.height() - mCSB_container.outerHeight(false),
-								mCSB_dragger.parent().height() - mCSB_dragger.height()
+								mCSB_dragger.parent().height() - mCSB_dragger.outerHeight(true)
 							],
 							scrollTo = [to, to === 0 ? 0 : (to / d.scrollRatio.y)],
 							tso = totalScrollOffsets[0],
